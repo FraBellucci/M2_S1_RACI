@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M2 S1 – Misure Organizzative e Matrice RACI</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0d47a1,#1565c0,#1976d2);min-height:100vh;overflow:hidden;display:flex;justify-content:center;align-items:center}
+.container{background:#fff;width:800px;height:550px;display:flex;flex-direction:column;border-radius:10px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.header{background:linear-gradient(135deg,#0d47a1,#1565c0);color:#fff;padding:11px 18px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.header h1{font-size:15px;font-weight:700}.header p{font-size:11px;opacity:.8;margin-top:1px}
+button{padding:7px 13px;border:none;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;transition:all .2s}
+.btn-white{background:#fff;color:#0d47a1}.btn-white:hover{background:#e3f2fd}
+.btn-outline{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.4)}.btn-outline:hover{background:rgba(255,255,255,.25)}
+.btn-group{display:flex;gap:8px}
+.content{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.hidden{display:none!important}
+
+.instr{padding:18px 24px;overflow-y:auto;flex:1}
+.instr h2{color:#0d47a1;font-size:16px;margin-bottom:10px}
+.instr p,.instr li{font-size:13px;line-height:1.6;color:#444;margin-bottom:5px}
+.instr ul{margin-left:18px;margin-bottom:10px}
+.raci-row{display:flex;gap:6px;margin:10px 0}
+.raci-badge{flex:1;border-radius:6px;padding:7px 8px;font-size:11px;font-weight:700;text-align:center;line-height:1.4}
+.r-r{background:#e3f2fd;border:2px solid #1565c0;color:#0d47a1}
+.r-a{background:#fff3e0;border:2px solid #ef6c00;color:#bf360c}
+.r-c{background:#f3e5f5;border:2px solid #7b1fa2;color:#4a0072}
+.r-i{background:#e8f5e9;border:2px solid #2e7d32;color:#1b5e20}
+.start-btn{background:linear-gradient(135deg,#0d47a1,#1565c0);color:#fff;padding:11px 32px;font-size:14px;border-radius:8px;display:block;margin:14px auto 0}
+.start-btn:hover{transform:translateY(-2px)}
+
+.game-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;padding:10px 14px;gap:8px}
+.prog-row{display:flex;align-items:center;gap:10px;flex-shrink:0;font-size:12px;color:#555}
+.prog-bar{flex:1;height:6px;background:#e0e0e0;border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,#0d47a1,#42a5f5);border-radius:3px;transition:width .4s}
+.prog-lbl{font-weight:700;color:#0d47a1}
+
+.matrix{flex:1;overflow:hidden;display:flex;flex-direction:column;gap:0}
+.matrix-header{display:grid;grid-template-columns:180px repeat(4,1fr);gap:4px;flex-shrink:0;padding-bottom:4px}
+.mh-cell{text-align:center;font-size:11px;font-weight:700;padding:5px 4px;border-radius:5px}
+.mh-r{background:#1565c0;color:#fff}
+.mh-a{background:#ef6c00;color:#fff}
+.mh-c{background:#7b1fa2;color:#fff}
+.mh-i{background:#2e7d32;color:#fff}
+.mh-empty{background:transparent}
+.matrix-body{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:4px}
+.matrix-row{display:grid;grid-template-columns:180px repeat(4,1fr);gap:4px;align-items:center}
+.role-label{background:#f5f5f5;border-radius:6px;padding:7px 10px;font-size:11px;font-weight:700;color:#333;line-height:1.3}
+.drop-cell{border:2px dashed #ccc;border-radius:6px;min-height:38px;display:flex;align-items:center;justify-content:center;transition:all .2s;padding:3px}
+.drop-cell.over{border-color:#0d47a1;background:#e3f2fd}
+.drop-cell.filled-r{border-color:#1565c0;background:#e3f2fd;border-style:solid}
+.drop-cell.filled-a{border-color:#ef6c00;background:#fff3e0;border-style:solid}
+.drop-cell.filled-c{border-color:#7b1fa2;background:#f3e5f5;border-style:solid}
+.drop-cell.filled-i{border-color:#2e7d32;background:#e8f5e9;border-style:solid}
+.drop-cell.correct{opacity:1}
+.drop-cell.wrong{border-color:#e53935!important;background:#ffebee!important}
+.chip{font-size:10px;font-weight:700;text-align:center;padding:3px 5px;border-radius:4px;line-height:1.2;cursor:default;width:100%}
+.chip-r{background:#1565c0;color:#fff}
+.chip-a{background:#ef6c00;color:#fff}
+.chip-c{background:#7b1fa2;color:#fff}
+.chip-i{background:#2e7d32;color:#fff}
+
+.pool-row{display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap}
+.pool-chip{padding:5px 10px;border-radius:6px;font-size:11px;font-weight:700;cursor:grab;user-select:none;transition:all .2s;border:2px solid transparent}
+.pool-chip:hover{transform:translateY(-2px);box-shadow:0 3px 8px rgba(0,0,0,.2)}
+.pool-chip.used{opacity:.3;pointer-events:none}
+.pc-r{background:#e3f2fd;border-color:#1565c0;color:#0d47a1}
+.pc-a{background:#fff3e0;border-color:#ef6c00;color:#bf360c}
+.pc-c{background:#f3e5f5;border-color:#7b1fa2;color:#4a0072}
+.pc-i{background:#e8f5e9;border-color:#2e7d32;color:#1b5e20}
+
+.check-btn{align-self:flex-end;background:linear-gradient(135deg,#0d47a1,#1565c0);color:#fff;padding:8px 20px;font-size:12px;border-radius:7px}
+.check-btn:disabled{background:#ccc;cursor:not-allowed}
+
+.fb-page{flex:1;display:flex;align-items:center;justify-content:center;padding:20px}
+.fb-box{text-align:center;max-width:500px}
+.fb-icon{font-size:55px;margin-bottom:12px}
+.fb-box h2{font-size:22px;font-weight:700;color:#0d47a1;margin-bottom:8px}
+.fb-box p{font-size:13px;color:#555;line-height:1.6;margin-bottom:15px}
+.fb-score{background:#e3f2fd;border-radius:10px;padding:10px 20px;font-size:16px;font-weight:700;color:#0d47a1;margin-bottom:15px;display:inline-block}
+.fb-btns{display:flex;gap:10px;justify-content:center}
+.btn-prim{background:linear-gradient(135deg,#0d47a1,#1565c0);color:#fff;padding:10px 24px;font-size:13px;border-radius:8px}
+.btn-sec{background:#78909c;color:#fff;padding:10px 24px;font-size:13px;border-radius:8px}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div>
+      <h1>Matrice RACI – Chi fa cosa in sicurezza?</h1>
+      <p>Modulo 2 · Sezione 1 – Misure Organizzative, SPP e Matrice RACI</p>
+    </div>
+    <div class="btn-group">
+      <button class="btn-outline" onclick="resetGame()">🔄 Ricomincia</button>
+      <button class="btn-white" onclick="window.close()">✕ Torna al Corso</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div id="instrPage" class="instr">
+      <h2>🎯 Obiettivo</h2>
+      <p>La matrice RACI assegna a ogni figura del Sistema di Prevenzione e Protezione un ruolo preciso per ciascun processo. Trascina le etichette RACI nella cella corretta della matrice.</p>
+      <div class="raci-row">
+        <div class="raci-badge r-r"><b>R</b> – Responsible<br><span style="font-weight:400">Chi esegue</span></div>
+        <div class="raci-badge r-a"><b>A</b> – Accountable<br><span style="font-weight:400">Chi risponde</span></div>
+        <div class="raci-badge r-c"><b>C</b> – Consulted<br><span style="font-weight:400">Chi viene consultato</span></div>
+        <div class="raci-badge r-i"><b>I</b> – Informed<br><span style="font-weight:400">Chi viene informato</span></div>
+      </div>
+      <ul>
+        <li>Trascina le etichette colorate dal basso nelle celle della matrice</li>
+        <li>Ogni cella accetta una sola etichetta — puoi trascinarla fuori per rimuoverla</li>
+        <li>Clicca <strong>Verifica</strong> quando hai completato la matrice</li>
+      </ul>
+      <button class="start-btn" onclick="startGame()">▶ Inizia il Gioco</button>
+    </div>
+
+    <div id="gamePage" class="game-wrap hidden">
+      <div class="prog-row">
+        Celle compilate: <span class="prog-lbl"><span id="filledCount">0</span>/20</span>
+        <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+        <button class="check-btn" id="checkBtn" onclick="checkMatrix()" disabled>Verifica</button>
+      </div>
+
+      <div class="matrix">
+        <div class="matrix-header">
+          <div class="mh-cell mh-empty"></div>
+          <div class="mh-cell mh-r">Datore di Lavoro</div>
+          <div class="mh-cell mh-a">RSPP</div>
+          <div class="mh-cell mh-c">Medico Competente</div>
+          <div class="mh-cell mh-i">RLS</div>
+        </div>
+        <div class="matrix-body" id="matrixBody"></div>
+      </div>
+
+      <div class="pool-row" id="poolRow"></div>
+    </div>
+
+    <div id="fbPage" class="fb-page hidden">
+      <div class="fb-box">
+        <div class="fb-icon">📊</div>
+        <h2>Matrice RACI Completata!</h2>
+        <p>La corretta assegnazione dei ruoli è la base del Sistema di Prevenzione e Protezione. Ogni figura ha responsabilità precise e non sovrapponibili.</p>
+        <div class="fb-score" id="fbScore">–</div>
+        <div class="fb-btns">
+          <button class="btn-prim" onclick="resetGame()">🔄 Rigioca</button>
+          <button class="btn-sec" onclick="window.close()">Torna al Corso</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Rows: process | DL | RSPP | MC | RLS
+// Values: R, A, C, I
+const MATRIX = [
+  { process:"Redazione del DVR",          cols:["A","R","C","I"] },
+  { process:"Nomina RSPP",                cols:["A","R","I","I"] },
+  { process:"Protocollo sorveglianza",    cols:["I","C","R","I"] },
+  { process:"Formazione lavoratori",      cols:["A","R","C","I"] },
+  { process:"Sopralluogo luoghi lavoro",  cols:["I","R","C","I"] },
+];
+
+const COLS = ["DL","RSPP","MC","RLS"];
+const CHIP_CLS = {R:"chip-r",A:"chip-a",C:"chip-c",I:"chip-i"};
+const CELL_CLS = {R:"filled-r",A:"filled-a",C:"filled-c",I:"filled-i"};
+const POOL_CLS = {R:"pc-r",A:"pc-a",C:"pc-c",I:"pc-i"};
+
+let state = {}; // key: "row-col" => value letter
+let draggingVal = null;
+let draggingSource = null; // "pool" or "cell:row-col"
+
+function startGame(){
+  state={};
+  renderMatrix();
+  renderPool();
+  updateProgress();
+  showPage('gamePage');
+}
+
+function renderMatrix(){
+  const body = document.getElementById('matrixBody');
+  body.innerHTML='';
+  MATRIX.forEach((row,ri)=>{
+    const rowEl = document.createElement('div');
+    rowEl.className='matrix-row';
+    const label = document.createElement('div');
+    label.className='role-label'; label.textContent=row.process;
+    rowEl.appendChild(label);
+    COLS.forEach((col,ci)=>{
+      const cell = document.createElement('div');
+      cell.className='drop-cell';
+      const key=ri+'-'+ci;
+      const val=state[key];
+      if(val){
+        cell.classList.add(CELL_CLS[val]);
+        const chip=document.createElement('div');
+        chip.className='chip '+CHIP_CLS[val];
+        chip.textContent=val;
+        cell.appendChild(chip);
+        // drag out
+        chip.draggable=true;
+        chip.ondragstart=e=>{draggingVal=val;draggingSource='cell:'+key;e.dataTransfer.effectAllowed='move';};
+      }
+      cell.ondragover=e=>{e.preventDefault();cell.classList.add('over');};
+      cell.ondragleave=()=>cell.classList.remove('over');
+      cell.ondrop=e=>dropToCell(e,key,cell);
+      rowEl.appendChild(cell);
+    });
+    body.appendChild(rowEl);
+  });
+}
+
+function renderPool(){
+  const pool=document.getElementById('poolRow');
+  pool.innerHTML='';
+  // count usage
+  const usage={R:0,A:0,C:0,I:0};
+  Object.values(state).forEach(v=>usage[v]++);
+  // total needed per letter
+  const needed={R:0,A:0,C:0,I:0};
+  MATRIX.forEach(row=>row.cols.forEach(v=>needed[v]++));
+
+  ['R','A','C','I'].forEach(letter=>{
+    const available=needed[letter]-usage[letter];
+    for(let i=0;i<available;i++){
+      const chip=document.createElement('div');
+      chip.className='pool-chip '+POOL_CLS[letter];
+      chip.textContent=letter+' – '+(letter==='R'?'Responsible':letter==='A'?'Accountable':letter==='C'?'Consulted':'Informed');
+      chip.draggable=true;
+      chip.ondragstart=e=>{draggingVal=letter;draggingSource='pool';e.dataTransfer.effectAllowed='move';};
+      pool.appendChild(chip);
+    }
+  });
+}
+
+function dropToCell(e,key,cell){
+  e.preventDefault(); cell.classList.remove('over');
+  if(!draggingVal) return;
+  // if came from another cell, free that cell
+  if(draggingSource && draggingSource.startsWith('cell:')){
+    const srcKey=draggingSource.split(':')[1];
+    if(srcKey!==key) delete state[srcKey];
+  }
+  state[key]=draggingVal;
+  draggingVal=null; draggingSource=null;
+  renderMatrix(); renderPool(); updateProgress();
+}
+
+function updateProgress(){
+  const filled=Object.keys(state).length;
+  const total=MATRIX.length*COLS.length;
+  document.getElementById('filledCount').textContent=filled;
+  document.getElementById('progFill').style.width=(filled/total*100)+'%';
+  document.getElementById('checkBtn').disabled=filled<total;
+}
+
+function checkMatrix(){
+  let correct=0;
+  const cells=document.querySelectorAll('.drop-cell');
+  let ci=0;
+  MATRIX.forEach((row,ri)=>{
+    row.cols.forEach((expected,coli)=>{
+      const key=ri+'-'+coli;
+      const cell=cells[ri*COLS.length+coli+ri]; // offset by role label
+      const got=state[key];
+      if(got===expected) correct++;
+    });
+  });
+  // highlight via re-render with check
+  const total=MATRIX.length*COLS.length;
+  // visual feedback on cells
+  const body=document.getElementById('matrixBody');
+  const rowEls=body.querySelectorAll('.matrix-row');
+  rowEls.forEach((rowEl,ri)=>{
+    const dropCells=rowEl.querySelectorAll('.drop-cell');
+    dropCells.forEach((cell,ci)=>{
+      const key=ri+'-'+ci;
+      const got=state[key];
+      const expected=MATRIX[ri].cols[ci];
+      cell.classList.remove('over');
+      if(got!==expected) cell.classList.add('wrong');
+    });
+  });
+  document.getElementById('checkBtn').disabled=true;
+  setTimeout(()=>{
+    document.getElementById('fbScore').textContent='Corrette: '+correct+'/'+total;
+    showPage('fbPage');
+  },1200);
+}
+
+function resetGame(){showPage('instrPage');}
+function showPage(id){['instrPage','gamePage','fbPage'].forEach(p=>document.getElementById(p).classList.add('hidden'));document.getElementById(id).classList.remove('hidden');}
+
+document.addEventListener('dragend',()=>{draggingVal=null;draggingSource=null;});
+</script>
+</body>
+</html>
